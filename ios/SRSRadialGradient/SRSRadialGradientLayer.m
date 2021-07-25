@@ -6,7 +6,7 @@
     BOOL _startCenterInitialized;
     BOOL _endCenterInitialized;
     BOOL _endRadiusInitialized;
-    CGGradientRef _lastGradient;
+//    CGGradientRef _lastGradient;
 }
 
 - (instancetype)init
@@ -70,11 +70,12 @@
 
 - (void)drawInContext:(CGContextRef)ctx
 {
+    CGGradientRef gradient = nil;
     if (!_colors)
         return;
 
-    if (!_lastGradient || _needsNewGradient)
-    {
+//    if (!_lastGradient || _needsNewGradient)
+//    {
         if (_locations) {
             CGFloat *locations = nil;
 
@@ -91,13 +92,13 @@
                     locations[i] = (1 / (_colors.count - 1)) * i;
                 }
             }
-            _lastGradient = CGGradientCreateWithColors(nil, (CFArrayRef)_colors, locations);
+            gradient = CGGradientCreateWithColors(nil, (CFArrayRef)_colors, locations);
             free(locations);
         } else {
-            _lastGradient = CGGradientCreateWithColors(nil, (CFArrayRef)_colors, nil);
+            gradient = CGGradientCreateWithColors(nil, (CFArrayRef)_colors, nil);
         }
         _needsNewGradient = NO;
-    }
+//    }
 
     CGSize size = self.bounds.size;
 
@@ -106,12 +107,13 @@
 
     CGPoint defaultCenter = CGPointMake(size.width / 2, size.height / 2);
 
-    CGContextDrawRadialGradient(ctx, _lastGradient,
+    CGContextDrawRadialGradient(ctx, gradient,
                                 _startCenterInitialized ? self.startCenter : defaultCenter,
                                 self.startRadius,
                                 _endCenterInitialized ? self.endCenter : defaultCenter,
                                 _endRadiusInitialized ? self.endRadius : MIN(size.width / 2, size.height / 2),
                                 kCGGradientDrawsBeforeStartLocation | kCGGradientDrawsAfterEndLocation);
+    CGGradientRelease(gradient);
 }
 
 
